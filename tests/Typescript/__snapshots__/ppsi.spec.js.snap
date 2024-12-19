@@ -195,3 +195,22 @@ export class AppComponent {
 }
 
 `;
+
+exports[`ppsi.array.spec.js - typescript-verify: ppsi.array.spec.js 1`] = `
+run_spec(__dirname, ["typescript"], {
+    importOrder: ['^@core/(.*)$', '^@server/(.*)', '^@ui/(.*)$', '^[./]'],
+    importOrderSeparation: true,
+    importOrderParserPlugins : ['typescript', 'decorators-legacy', 'classProperties']
+});
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+run_spec(__dirname, ["typescript"], {
+    importOrder: ["^@core/(.*)$", "^@server/(.*)", "^@ui/(.*)$", "^[./]"],
+    importOrderSeparation: true,
+    importOrderParserPlugins: [
+        "typescript",
+        "decorators-legacy",
+        "classProperties",
+    ],
+});
+
+`;

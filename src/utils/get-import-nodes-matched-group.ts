@@ -13,13 +13,14 @@ import {
  */
 export const getImportNodesMatchedGroup = (
     node: ImportDeclaration,
-    importOrder: string[],
+    importOrder: Array<string | string[]>,
 ) => {
-    const groupWithRegExp = importOrder.map((group) => ({
+    const importOrderArrayed = importOrder.map(x => (typeof x === 'string' ? [x] : x));
+    const groupWithRegExp = importOrderArrayed.map((group) => ({
         group,
-        regExp: group.startsWith(TYPES_SPECIAL_WORD)
-            ? new RegExp(group.replace(TYPES_SPECIAL_WORD, ''))
-            : new RegExp(group),
+        regExps: group.map(x => x.startsWith(TYPES_SPECIAL_WORD)
+            ? new RegExp(x.replace(TYPES_SPECIAL_WORD, ''))
+            : new RegExp(x)),
     }));
 
     // finding the group for non-type imports is easy: it's the first group that matches.
@@ -27,30 +28,34 @@ export const getImportNodesMatchedGroup = (
     // that's earlier in the list than a type-specific group that would otherwise match.
     // so we need to get all matching groups, look for the first matching _type-specific_ group,
     // and if it exists, return it. otherwise, return the first matching group if there is one.
-    const matchingGroups = groupWithRegExp.filter(({ group, regExp }) => {
-        if (
-            group.startsWith(TYPES_SPECIAL_WORD) &&
-            node.importKind !== 'type'
-        ) {
-            return false;
-        } else {
-            return node.source.value.match(regExp) !== null;
-        }
+    const matchingGroups = groupWithRegExp.filter(({ group, regExps }) => {
+        return group.some(((x, i) => {
+            if (
+              x.startsWith(TYPES_SPECIAL_WORD) &&
+              node.importKind !== 'type'
+            ) {
+                return false;
+            } else {
+                return node.source.value.match(regExps[i]) !== null;
+            }
+        }))
     });
 
     if (matchingGroups.length === 0) {
-        return node.importKind === 'type' &&
-            importOrder.find(
-                (group) => group === THIRD_PARTY_TYPES_SPECIAL_WORD,
+        return [
+          node.importKind === 'type' &&
+            importOrderArrayed.find(
+                (group) => group.includes(THIRD_PARTY_TYPES_SPECIAL_WORD),
             )
             ? THIRD_PARTY_TYPES_SPECIAL_WORD
-            : THIRD_PARTY_MODULES_SPECIAL_WORD;
+            : THIRD_PARTY_MODULES_SPECIAL_WORD
+        ].join('');
     } else if (node.importKind !== 'type') {
-        return matchingGroups[0].group;
+        return matchingGroups[0].group.join('');
     } else {
         for (const { group } of matchingGroups) {
-            if (group.startsWith(TYPES_SPECIAL_WORD)) return group;
+            if (group.includes(TYPES_SPECIAL_WORD)) return group.join('');
         }
-        return matchingGroups[0].group;
+        return matchingGroups[0].group.join('');
     }
 };

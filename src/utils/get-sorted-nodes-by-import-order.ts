@@ -17,7 +17,9 @@ import { getSortedNodesGroup } from './get-sorted-nodes-group';
 export const getSortedNodesByImportOrder: GetSortedNodes = (nodes, options) => {
     naturalSort.insensitive = options.importOrderCaseInsensitive;
 
-    let { importOrder } = options;
+    const { importOrder } = options;
+    // Force the type to `string[][]` to ease downstream changes
+    let importOrderArrayed = importOrder.map((group) => typeof group === 'string' ? [group] : group)
     const {
         importOrderSeparation,
         importOrderSortSpecifiers,
@@ -27,20 +29,20 @@ export const getSortedNodesByImportOrder: GetSortedNodes = (nodes, options) => {
     const originalNodes = nodes.map(clone);
     const finalNodes: ImportOrLine[] = [];
 
-    if (!importOrder.includes(THIRD_PARTY_MODULES_SPECIAL_WORD)) {
-        importOrder = [THIRD_PARTY_MODULES_SPECIAL_WORD, ...importOrder];
+    if (!importOrderArrayed.some(g => g.includes(THIRD_PARTY_MODULES_SPECIAL_WORD))) {
+        importOrderArrayed = [[THIRD_PARTY_MODULES_SPECIAL_WORD], ...importOrderArrayed]
     }
 
-    const importOrderGroups = importOrder.reduce<ImportGroups>(
+    const importOrderGroups = importOrderArrayed.reduce<ImportGroups>(
         (groups, regexp) => ({
             ...groups,
-            [regexp]: [],
+            [regexp.join('')]: [],
         }),
         {},
     );
 
-    const importOrderWithOutThirdPartyPlaceholder = importOrder.filter(
-        (group) => group !== THIRD_PARTY_MODULES_SPECIAL_WORD,
+    const importOrderWithOutThirdPartyPlaceholder = importOrderArrayed.filter(
+        (group) => !group.includes(THIRD_PARTY_MODULES_SPECIAL_WORD),
     );
 
     for (const node of originalNodes) {
@@ -51,8 +53,8 @@ export const getSortedNodesByImportOrder: GetSortedNodes = (nodes, options) => {
         importOrderGroups[matchedGroup].push(node);
     }
 
-    for (const group of importOrder) {
-        const groupNodes = importOrderGroups[group];
+    for (const group of importOrderArrayed) {
+        const groupNodes = importOrderGroups[group.join('')];
 
         if (groupNodes.length === 0) continue;
 
