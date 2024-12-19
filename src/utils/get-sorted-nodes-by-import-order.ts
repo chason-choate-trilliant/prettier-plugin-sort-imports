@@ -34,16 +34,16 @@ export const getSortedNodesByImportOrder: GetSortedNodes = (nodes, options) => {
     }
 
     const importOrderGroups = importOrderArrayed.reduce<ImportGroups>(
-        (groups, regexp) => ({
+        (groups, regexps) => ({
             ...groups,
-            [regexp.join('')]: [],
+            [regexps.join('')]: [],
         }),
         {},
     );
 
-    const importOrderWithOutThirdPartyPlaceholder = importOrderArrayed.filter(
-        (group) => !group.includes(THIRD_PARTY_MODULES_SPECIAL_WORD),
-    );
+    const importOrderWithOutThirdPartyPlaceholder = importOrderArrayed
+      .filter(g => g.filter(x => x !== THIRD_PARTY_MODULES_SPECIAL_WORD))
+      .filter(g => g.length > 0);
 
     for (const node of originalNodes) {
         const matchedGroup = getImportNodesMatchedGroup(

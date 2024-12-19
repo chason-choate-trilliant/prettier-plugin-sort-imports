@@ -54,7 +54,7 @@ export const getImportNodesMatchedGroup = (
         return matchingGroups[0].group.join('');
     } else {
         for (const { group } of matchingGroups) {
-            if (group.includes(TYPES_SPECIAL_WORD)) return group.join('');
+            if (group.some(x => x.startsWith(TYPES_SPECIAL_WORD))) return group.join('');
         }
         return matchingGroups[0].group.join('');
     }
