@@ -99,7 +99,7 @@ module.exports = {
 
 #### **`importOrder`**
 
-**type**: `Array<string>`
+**type**: `Array<string | string[]>`
 
 A collection of Regular expressions in string format.
 
