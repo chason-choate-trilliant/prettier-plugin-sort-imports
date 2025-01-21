@@ -10,13 +10,13 @@
   },
   "homepage": "https://github.com/trivago/prettier-plugin-sort-imports#readme",
   "scripts": {
-    "prepare": "npm run compile",
+    "prepare": "yarn run compile",
     "compile": "tsc",
-    "preexample": "npm run compile",
+    "preexample": "yarn run compile",
     "example": "prettier --config ./examples/.prettierrc --plugin lib/src/index.js",
-    "test": "npm node --experimental-vm-modules $(npm bin jest)",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
     "type-check": "tsc --noEmit",
-    "prepublishOnly": "npm run compile && npm run test"
+    "prepublishOnly": "yarn run compile && yarn run test"
   },
   "keywords": [
     "prettier",
